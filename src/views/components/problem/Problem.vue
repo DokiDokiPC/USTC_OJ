@@ -31,7 +31,6 @@ export default {
         //     }
         // }
         ).then(resp => {
-            console.log("HELLO123")
             console.log(resp)
             this.items = resp.data.problem
         })
@@ -44,13 +43,13 @@ export default {
                 text: '#',
                 align: 'start',
                 sortable: false,
-                value: 'Problem_ID',
+                value: 'ID',
             },
             {
                 text: 'Title',
                 align: 'start',
                 sortable: false,
-                value: 'Problem_Title',
+                value: 'Title',
             },
             {
                 text: 'Level',
