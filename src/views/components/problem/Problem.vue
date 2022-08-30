@@ -6,10 +6,9 @@
             </v-card-title>
             <v-card-text>
                 <v-data-table :headers="headers" :items="items">
-                    <template v-slot:item.name="{item}">
-                        <router-link
-                            :to="{ name: 'problemDetail', params:{ id: item.pid }}">
-                            {{ item.name }}
+                    <template v-slot:item.name="{ item }">
+                        <router-link :to="{ name: 'problemDetail', params: { id: item.pid } }">
+                            {{  item.name  }}
                         </router-link>
                     </template>
                 </v-data-table>
@@ -22,17 +21,17 @@
 export default {
     name: "Problem",
     mounted() {
-        this.$http.get('http://localhost:5000/problem'
-        // , 
-        // {
-        //     params: {
-        //         offset: 0,
-        //         limit: 10
-        //     }
-        // }
+        this.$http.get('http://localhost:5000/problems'
+            ,
+            {
+                params: {
+                    offset: 0,
+                    limit: 10
+                }
+            }
         ).then(resp => {
             console.log(resp)
-            this.items = resp.data.problem
+            this.items = resp.data.problems
         })
     },
     methods: {},
@@ -82,5 +81,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>
