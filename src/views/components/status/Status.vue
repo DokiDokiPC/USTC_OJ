@@ -5,7 +5,7 @@
                 Status
             </v-card-title>
             <v-card-text>
-                <v-data-table :headers="headers" :items="status">
+                <v-data-table :headers="headers" :items="items">
                     <template v-slot:item.status="{item}">
                         <v-chip :color="getColor(item.status)" outlined>
                             {{item.status}}
@@ -20,7 +20,22 @@
 <script>
 export default {
     name: "Status",
+    mounted() {
+        this.$http.get('http://localhost:5000/status'
+            ,
+            {
+                params: {
+                    offset: 0,
+                    limit: 10
+                }
+            }
+        ).then(resp => {
+            // console.log(resp)
+            this.items = resp.data.status
+        })
+    },
     data: () => ({
+        items:[],
         headers: [
             {
                 text: "Submission",
@@ -33,24 +48,6 @@ export default {
             {   text: "Time",  value: "timeCost"    },
             {   text: "Memory", value: "memoryCost"   }
         ],
-        status: [
-            {
-                submitTime: "2022-3-1",
-                problemId: "003",
-                coder: "Nyan the cat",
-                status: "Accepted",
-                timeCost: "10ms",
-                memoryCost: "30Kb"
-            },
-            {
-                submitTime: "2022-3-1",
-                problemId: "002",
-                coder: "Nyan the cat",
-                status: "Compile Error",
-                timeCost: "",
-                memoryCost: ""
-            }
-        ]
     }),
     methods: {
         getColor: function(status) {

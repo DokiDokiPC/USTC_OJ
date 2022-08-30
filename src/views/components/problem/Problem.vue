@@ -30,7 +30,7 @@ export default {
                 }
             }
         ).then(resp => {
-            console.log(resp)
+            // console.log(resp)
             this.items = resp.data.problems
         })
     },
@@ -54,13 +54,7 @@ export default {
                 text: 'Level',
                 align: 'start',
                 sortable: false,
-                value: 'level',
-            },
-            {
-                text: 'Total',
-                align: 'start',
-                sortable: false,
-                value: 'submit_num',
+                value: 'Level',
             },
             {
                 text: 'Accepted number',
