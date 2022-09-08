@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useUrlStore } from "@/stores/url";
+import { useUrlStore } from "../../stores/url";
 
 const form_valid = ref(false);
 const form_data = ref(new FormData());
@@ -10,12 +10,13 @@ const time = ref("");
 const memory = ref("");
 const type = ref("");
 
-// type of e?
-function on_template_file_selected(e) {
+/* e的类型?
+function on_template_file_selected(e: Event) {
   form_data.value.delete("file_archive");
   form_data.value.append("file_archive", e);
-}
+}*/
 
+const problems_url = useUrlStore().problems_url;
 async function send_data() {
   const new_form_data = form_data.value;
   new_form_data.append("name", name.value);
@@ -24,9 +25,8 @@ async function send_data() {
   new_form_data.append("memory", memory.value);
   new_form_data.append("type", type.value);
 
-  const problems_url = useUrlStore().problems_url;
   const resp = await fetch(problems_url, {
-    method: "post",
+    method: "POST",
     body: JSON.stringify(new_form_data),
     headers: {
       "Content-Type": "multipart/form-data",
@@ -76,12 +76,8 @@ async function send_data() {
             :rules="[(v) => !!v || '此项必填']"
           >
           </v-text-field>
-          <v-file-input
-            chips
-            @change="on_template_file_selected"
-            accept=".zip"
-            label="select file(zip)*"
-          />
+          <!-- @change="on_template_file_selected" 在v-file-input中 -->
+          <v-file-input chips accept=".zip" label="select file(zip)*" />
         </v-form>
       </v-card-text>
       <v-card-actions>

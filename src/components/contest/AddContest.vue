@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useUrlStore } from "@/stores/url";
+import { useUrlStore } from "../../stores/url";
 
 const form_valid = ref(false);
 const name = ref("");
 const duration = ref("");
 const start_time = ref("");
 
+const contests_url = useUrlStore().contests_url;
 async function send_data() {
-  const contests_url = useUrlStore().contests_url;
   const resp = await fetch(contests_url);
   console.log(resp);
 }

@@ -1,22 +1,26 @@
 <script setup lang="ts">
-import router from "@/router";
 import { ref, onMounted } from "vue";
 import UserDialog from "../common/UserDialog.vue";
 import icon from "../../assets/USTCOJ.svg";
+import { useUrlStore } from "../../stores/url";
 
 const login_dialog = ref(false);
 const is_logged = ref(false);
 
+// 退出
+const tokens_url = useUrlStore().tokens_url;
 function logout() {
-  // delete api/tokens/xxx
+  // 由于cookie是HttpOnly的, 所以只能访问后端删除
+  fetch(tokens_url, { method: "DELETE", credentials: "include" });
   is_logged.value = false;
-  router.push({
-    name: "home",
-  });
 }
 
-onMounted(function () {
-  return;
+onMounted(async function () {
+  const resp = await fetch(tokens_url, {
+    method: "HEAD",
+    credentials: "include",
+  });
+  if (resp.status === 200) is_logged.value = true;
 });
 </script>
 
@@ -24,11 +28,11 @@ onMounted(function () {
   <v-app-bar app rounded elevation="2">
     <v-col cols="4" class="d-flex align-center">
       <v-tabs>
-        <v-tab color="orange" to="/">Home</v-tab>
-        <v-tab color="orange" to="problem">Problem</v-tab>
-        <v-tab color="orange" to="status">Status</v-tab>
-        <v-tab color="orange" to="contest">Contest</v-tab>
-        <v-tab color="orange" to="user">User</v-tab>
+        <v-tab color="orange" :to="{ name: 'home' }">Home</v-tab>
+        <v-tab color="orange" :to="{ name: 'problem' }">Problem</v-tab>
+        <v-tab color="orange" :to="{ name: 'status' }">Status</v-tab>
+        <v-tab color="orange" :to="{ name: 'contest' }">Contest</v-tab>
+        <v-tab color="orange" :to="{ name: 'user' }">User</v-tab>
       </v-tabs>
     </v-col>
 
@@ -47,13 +51,10 @@ onMounted(function () {
       </v-btn>
     </v-col>
 
-    <UserDialog :show_dialog="login_dialog" />
-
-    <!-- 待解决: dialog不显示 -->
-    <div class="text-center">
-      <v-dialog :value="true" width="500px">
-        <p>123123123</p>
-      </v-dialog>
-    </div>
+    <UserDialog
+      :show_dialog="login_dialog"
+      @close_dialog="login_dialog = false"
+      @login_success="is_logged = true"
+    />
   </v-app-bar>
 </template>

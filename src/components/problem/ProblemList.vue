@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, watch } from "vue";
-import { useUrlStore } from "@/stores/url";
-import router from "@/router";
+import { useUrlStore } from "../../stores/url";
+import router from "../../router";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-material.css";
 import { AgGridVue } from "ag-grid-vue3";
@@ -62,16 +62,31 @@ function grid_ready(event: GridReadyEvent) {
   grid_api = event.api;
 }
 
+// 提示条
+const snackbar = reactive({
+  show: false,
+  text: "",
+  color: "",
+  // 用此函数显示一个指定color和text的提示条
+  pop: (color: string, text: string) => {
+    snackbar.color = color;
+    snackbar.text = text;
+    snackbar.show = true;
+  },
+});
+
 // 获取数据到table
+const problems_url = useUrlStore().problems_url;
 async function get_problems(offset: number) {
   if (grid_api) grid_api.showLoadingOverlay();
-  const problems_url = useUrlStore().problems_url;
   problems_url.searchParams.set("offset", offset.toString());
-  const resp = await fetch(problems_url);
-  const data = await resp.json();
-  page_size.value = data.page_size;
-  total_count.value = data.total_count;
-  row_data.value = data.problems;
+  const resp = await fetch(problems_url, { credentials: "include" });
+  if (resp.status === 200) {
+    const data = await resp.json();
+    page_size.value = data.page_size;
+    total_count.value = data.total_count;
+    row_data.value = data.problems;
+  } else snackbar.pop("error", "Login required");
   if (grid_api) grid_api.hideOverlay();
 }
 
@@ -94,6 +109,16 @@ onMounted(async () => {
 </script>
 
 <template>
+  <!-- 提示条, z-index: 3000使其在dialog之上(越大越在上层) -->
+  <v-snackbar
+    v-model="snackbar.show"
+    location="top"
+    :timeout="1500"
+    :color="snackbar.color"
+    style="z-index: 3000"
+  >
+    {{ snackbar.text }}
+  </v-snackbar>
   <v-container>
     <v-card>
       <v-card-text>

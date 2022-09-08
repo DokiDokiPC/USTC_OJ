@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
-import { useUrlStore } from "@/stores/url";
+import { onMounted } from "vue";
+import { useUrlStore } from "../../stores/url";
 
+const contests_url = useUrlStore().contests_url;
 onMounted(async () => {
-  const contests_url = useUrlStore().contests_url;
   contests_url.searchParams.set("offset", "0");
   const resp = await fetch(contests_url);
   const data = await resp.json();
   console.log(data);
 });
 
-const items = ref([]);
+/*const items = ref([]);
 const page_size = ref(0);
 const headers = reactive([
   {
@@ -43,7 +43,7 @@ const headers = reactive([
     sortable: false,
     value: "problem_number",
   },
-]);
+]);*/
 </script>
 
 <template>

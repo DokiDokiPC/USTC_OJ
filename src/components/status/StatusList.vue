@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
-import { useUrlStore } from "@/stores/url";
+import { ref, onMounted } from "vue";
+import { useUrlStore } from "../../stores/url";
 
 const items = ref([]);
-const headers = reactive([
+/*const headers = reactive([
   {
     text: "Submission",
     value: "submitTime",
@@ -14,10 +14,10 @@ const headers = reactive([
   { text: "Status", value: "status" },
   { text: "Time", value: "timeCost" },
   { text: "Memory", value: "memoryCost" },
-]);
+]);*/
 
+const status_url = useUrlStore().status_url;
 onMounted(async () => {
-  const status_url = useUrlStore().status_url;
   status_url.searchParams.set("offset", "0");
   const resp = await fetch(status_url);
   const data = await resp.json();
@@ -25,7 +25,7 @@ onMounted(async () => {
   console.log(data);
 });
 
-function get_color(status: string): string {
+/*function get_color(status: string): string {
   switch (status) {
     case "Accepted":
       return "green";
@@ -35,7 +35,7 @@ function get_color(status: string): string {
       return "warning";
   }
   return "grey";
-}
+}*/
 </script>
 
 <template>
