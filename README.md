@@ -37,22 +37,6 @@ pnpm install
 pnpm dev
 ```
 
-这一步可能遇到如下报错
-
-```sh
-error when starting dev server:
-Error: Vuetify plugin must be loaded after the vue plugin
-    at configResolved (xxxxxx\USTC_OJ_frontend\node_modules\.pnpm\vite-plugin-vuetify@1.0.0-alpha.15_wv6jrw7v7wofpzxjdohlvgjswm\node_modules\vite-plugin-vuetify\dist\importPlugin.js:19:23)
-```
-
-点进去将如下三行注释掉, 重新运行
-
-```js
-if (config.plugins.indexOf(this) < config.plugins.findIndex(plugin => plugin.name ==='vite:vue')) {
-    throw new Error('Vuetify plugin must be loaded after the vue plugin');
-}
-```
-
 ### Type-Check, Compile and Minify for Production
 
 ```sh
