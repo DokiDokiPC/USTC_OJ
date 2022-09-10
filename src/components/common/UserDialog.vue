@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
 import { useUrlStore } from "../../stores/url";
 
 // 提示条
@@ -7,10 +7,12 @@ const snackbar = reactive({
   show: false,
   text: "",
   color: "",
+  timeout: 1500,
   // 用此函数显示一个指定color和text的提示条
-  pop: (color: string, text: string) => {
+  pop: (color: string, text: string, timeout: number = 1500) => {
     snackbar.color = color;
     snackbar.text = text;
+    snackbar.timeout = timeout;
     snackbar.show = true;
   },
 });
@@ -23,7 +25,6 @@ const emits = defineEmits(["close_dialog", "login_success"]);
 const tab = ref(0);
 
 // 登录
-const form_valid = ref(false);
 const loading = ref(false);
 const login_form = reactive({
   username: "",
@@ -43,16 +44,53 @@ async function login() {
   loading.value = false;
 
   if (resp.status === 200) {
+    // 登录成功
     emits("close_dialog");
     snackbar.pop("success", "Login success");
     emits("login_success");
-  } else snackbar.pop("error", "Login failed");
+  } else {
+    // 登录失败
+    const errs: string[] = await resp.json();
+    if (errs) snackbar.pop("error", errs.join("\n"), -1);
+    else snackbar.pop("error", "Login failed");
+  }
 }
 
 // 注册
-/*function register() {
-  return;
-}*/
+const register_form = reactive({
+  email: "",
+  username: "",
+  password: "",
+});
+// 点击复选框可以检查密码输入是否正确
+const check_password = ref(false);
+const show_password = computed((): string =>
+  check_password.value ? "" : "password"
+);
+const users_url = useUrlStore().users_url;
+async function register() {
+  loading.value = true;
+  const resp = await fetch(users_url, {
+    method: "POST",
+    credentials: "include",
+    body: JSON.stringify(register_form),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  loading.value = false;
+  if (resp.status === 201) {
+    // 注册成功
+    emits("close_dialog");
+    snackbar.pop("success", "Registration success");
+    emits("login_success");
+  } else {
+    // 注册失败
+    const errs: string[] = await resp.json();
+    if (errs) snackbar.pop("error", errs.join("\n"), -1);
+    else snackbar.pop("error", "Registration failed");
+  }
+}
 </script>
 
 <template>
@@ -60,12 +98,23 @@ async function login() {
   <v-snackbar
     v-model="snackbar.show"
     location="top"
-    :timeout="1500"
+    :timeout="snackbar.timeout"
     :color="snackbar.color"
-    style="z-index: 3000"
+    style="z-index: 3000; white-space: pre-line"
   >
     {{ snackbar.text }}
+
+    <!-- 提示条的关闭按钮 -->
+    <v-btn
+      v-show="snackbar.timeout === -1"
+      color="red"
+      style="float: right"
+      @click="snackbar.show = false"
+    >
+      Close
+    </v-btn>
   </v-snackbar>
+
   <!-- 登录/注册对话框 -->
   <v-dialog
     :model-value="props.show_dialog"
@@ -81,26 +130,24 @@ async function login() {
         <v-window v-model="tab">
           <!-- 登录 -->
           <v-window-item>
-            <v-form ref="form" v-model="form_valid">
+            <v-form>
               <v-text-field
                 v-model="login_form.username"
-                required
                 label="Username"
                 @keydown.enter="login"
               />
               <v-text-field
                 v-model="login_form.password"
-                required
                 type="password"
                 label="Password"
                 @keydown.enter="login"
               />
+              <!-- 登录按钮 -->
               <div class="d-flex">
-                <v-spacer></v-spacer>
+                <v-spacer />
                 <v-btn
                   :loading="loading"
                   color="primary"
-                  text
                   @click="login"
                   style="margin: 2vh"
                   >Sign in
@@ -110,34 +157,38 @@ async function login() {
           </v-window-item>
 
           <!-- 注册 -->
-          <!-- <v-window-item>
-            <v-form ref="form" v-model="form_valid" class="px-5">
+          <v-window-item>
+            <v-form>
               <v-text-field
-                v-model="username"
-                required
+                v-model="register_form.email"
+                label="Email"
+                @keydown.enter="register"
+              />
+              <v-text-field
+                v-model="register_form.username"
                 label="Username"
                 @keydown.enter="register"
               />
               <v-text-field
-                v-model="password"
-                required
-                type="password"
+                v-model="register_form.password"
+                :type="show_password"
                 label="Password"
                 @keydown.enter="register"
               />
+              <!-- 注册按钮 -->
               <div class="d-flex">
-                <v-spacer></v-spacer>
+                <v-checkbox v-model="check_password" label="Check password" />
+                <v-spacer />
                 <v-btn
                   :loading="loading"
                   color="primary"
-                  text
-                  style="margin: 2vh"
                   @click="register"
-                  >Register
+                  style="margin: 2vh"
+                  >Sign up
                 </v-btn>
               </div>
             </v-form>
-          </v-window-item> -->
+          </v-window-item>
         </v-window>
       </v-card-text>
     </v-card>

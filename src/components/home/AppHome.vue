@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import NewArea from "./NewArea.vue";
+import NewsArea from "./NewsArea.vue";
 import RecentContestArea from "./RecentContestArea.vue";
 </script>
 
 <template>
   <v-container>
-    <NewArea />
+    <NewsArea />
     <RecentContestArea />
   </v-container>
 </template>
