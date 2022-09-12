@@ -43,15 +43,10 @@ const router = createRouter({
           component: () => import("../components/user/UserDetail.vue"),
         },
         {
-          path: "/status",
-          name: "status",
-          component: () => import("../components/status/StatusList.vue"),
-        },
-        {
-          // (\\d+)只匹配数字
-          path: "/status/:id(\\d+)",
-          name: "status-detail",
-          component: () => import("../components/status/StatusDetail.vue"),
+          path: "/submission",
+          name: "submission",
+          component: () =>
+            import("../components/submission/SubmissionList.vue"),
         },
         {
           path: "/contest",
