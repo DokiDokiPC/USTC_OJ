@@ -72,6 +72,14 @@ async function get_problems(offset: number) {
     const data = await resp.json();
     page_size.value = data.page_size;
     total_count.value = data.total_count;
+    // data.problems需要从列表变为字典, 这可以通过list的map函数完成,
+    // 然后再赋给row_data.value
+    data.problems = data.problems.map((l: []) => {
+      const d = {};
+      for (const [i, el] of column_defs.entries())
+        d[el.field as keyof typeof d] = l[i];
+      return d;
+    });
     row_data.value = data.problems;
   }
   if (grid_api) grid_api.hideOverlay();
