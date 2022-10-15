@@ -72,8 +72,8 @@ async function get_problems(offset: number) {
     const data = await resp.json();
     page_size.value = data.page_size;
     total_count.value = data.total_count;
-    // data.problems需要从列表变为字典, 这可以通过list的map函数完成,
-    // 然后再赋给row_data.value
+    // data.problems内部的列表需要变为字典, 这可以通过的map函数完成,
+    // 然后它才能赋给row_data.value
     data.problems = data.problems.map((l: []) => {
       const d = {};
       for (const [i, el] of column_defs.entries())
