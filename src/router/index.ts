@@ -33,14 +33,14 @@ const router = createRouter({
           component: () => import("../components/problem/ProblemDetail.vue"),
         },
         {
-          path: "/user",
-          name: "user",
-          component: () => import("../components/user/UserList.vue"),
+          path: "/rank",
+          name: "rank",
+          component: () => import("../components/user/UserRank.vue"),
         },
         {
           path: "/user/:username",
           name: "user-detail",
-          component: () => import("../components/user/UserDetail.vue"),
+          component: () => import("../components/user/UserInfo.vue"),
         },
         {
           path: "/submission",

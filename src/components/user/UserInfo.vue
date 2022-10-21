@@ -1,5 +1,5 @@
 <template>
   <v-container>
-    <p>user list</p>
+    <p>User Info</p>
   </v-container>
 </template>

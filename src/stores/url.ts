@@ -1,14 +1,14 @@
 import { defineStore } from "pinia";
 
 export const useUrlStore = defineStore("url", () => {
-  const base_url = new URL("http://127.0.0.1:5000/");
-  const contests_url = new URL("contests/", base_url);
-  const problems_url = new URL("problems/", base_url);
-  const submissions_url = new URL("submissions/", base_url);
-  const users_url = new URL("users/", base_url);
-  const tokens_url = new URL("tokens/", base_url);
+  const backend_url = new URL("http://127.0.0.1:5000/");
+  const contests_url = new URL("contests/", backend_url);
+  const problems_url = new URL("problems/", backend_url);
+  const submissions_url = new URL("submissions/", backend_url);
+  const users_url = new URL("users/", backend_url);
+  const tokens_url = new URL("tokens/", backend_url);
   return {
-    base_url,
+    base_url: backend_url,
     contests_url,
     problems_url,
     submissions_url,

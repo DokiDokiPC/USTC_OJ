@@ -50,7 +50,7 @@ const headers = reactive([
   <v-container>
     <v-card>
       <v-card-title>
-        <span>Problem List</span>
+        <span>Contest List</span>
       </v-card-title>
       <v-card-text>
         <!-- <v-data-table :headers="headers" :items="items"> </v-data-table> -->
