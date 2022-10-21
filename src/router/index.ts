@@ -64,6 +64,11 @@ const router = createRouter({
           name: "contest-detail",
           component: () => import("../components/contest/ContestDetail.vue"),
         },
+        {
+          path: "/test",
+          name: "test",
+          component: () => import("../components/TestTest.vue"),
+        },
       ],
     },
     {
