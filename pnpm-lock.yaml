@@ -10,8 +10,6 @@ specifiers:
   '@vue/eslint-config-prettier': ^7.0.0
   '@vue/eslint-config-typescript': ^11.0.2
   '@vue/tsconfig': ^0.1.3
-  ag-grid-community: ^28.2.0
-  ag-grid-vue3: ^28.2.0
   babel-runtime: ^6.26.0
   eslint: ^8.26.0
   eslint-plugin-vue: ^9.7.0
@@ -33,8 +31,6 @@ specifiers:
 
 dependencies:
   '@mdi/font': 7.0.96
-  ag-grid-community: 28.2.0
-  ag-grid-vue3: 28.2.0
   babel-runtime: 6.26.0
   pinia: 2.0.23_l7r24p6nevbtlimqmqcwa3ouhu
   roboto-fontface: 0.10.0
@@ -703,17 +699,6 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
     dev: true
-
-  /ag-grid-community/28.2.0:
-    resolution: {integrity: sha512-mL55V1H7c8zMWv3aumARCoU6ilDzN5lB69bFY9lhC2mzbvL/DyNWpX1v417IRidt2bHsVfQewPs6DOMkav7fqg==}
-    dev: false
-
-  /ag-grid-vue3/28.2.0:
-    resolution: {integrity: sha512-E4xJDsnGHBtK7VRXJcfuQ7nq33jmot5SYbjXTObe4mIh/Xvx1xCCCXFiQ7rszl4T9jrXuz5ERGZPk1p05nSFiQ==}
-    dependencies:
-      ag-grid-community: 28.2.0
-      vue: 3.2.41
-    dev: false
 
   /ajv-keywords/3.5.2_ajv@6.12.6:
     resolution: {integrity: sha512-5p6WTN0DdTGVQk6VjcEju19IgaHudalcfabD7yhDGeA6bcQnmL+CpveLJq/3hvfwd1aof6L386Ougkx6RfyMIQ==}

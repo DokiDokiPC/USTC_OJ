@@ -12,8 +12,6 @@
   },
   "dependencies": {
     "@mdi/font": "7.0.96",
-    "ag-grid-community": "^28.2.0",
-    "ag-grid-vue3": "^28.2.0",
     "babel-runtime": "^6.26.0",
     "pinia": "^2.0.23",
     "roboto-fontface": "*",

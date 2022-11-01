@@ -1,16 +1,22 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useUrlStore } from "../../stores/url";
 import router from "../../router";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-material.css";
-import { AgGridVue } from "ag-grid-vue3";
-import type {
-  GridReadyEvent,
-  GridApi,
-  RowClickedEvent,
-} from "ag-grid-community";
 
+// 定义了获取的problem类型, problems用以存储获取的数据
+type problem_type = {
+  id: number;
+  title: string;
+  level: string;
+  ac_num: number;
+  submit_num: number;
+};
+const column_keys = ["id", "title", "level", "ac_num", "submit_num"]; // 对应problem_type
+const column_names = ["#", "Title", "Level", "AC", "Total"]; // 每个属性显示的名称
+const problems = ref<[problem_type]>();
+const problems_url = useUrlStore().problems_url; // 获取problems所用的url
+
+// 分页信息
 const total_count = ref(0);
 const page_size = ref(0);
 const total_page = computed((): number => {
@@ -19,53 +25,8 @@ const total_page = computed((): number => {
 });
 const page = ref(1);
 
-// problem类型定义
-type problem_type = {
-  id: number;
-  title: string;
-  level: string;
-  ac_num: number;
-  submin_num: number;
-};
-const row_data = ref<[problem_type]>();
-const column_defs = reactive([
-  {
-    headerName: "#",
-    field: "id",
-    suppressMovable: true, // 禁止列拖动
-  },
-  {
-    headerName: "Title",
-    field: "title",
-    suppressMovable: true,
-  },
-  {
-    headerName: "Level",
-    field: "level",
-    suppressMovable: true,
-  },
-  {
-    headerName: "Accepted number",
-    field: "ac_num",
-    suppressMovable: true,
-  },
-  {
-    headerName: "Submission number",
-    field: "submit_num",
-    suppressMovable: true,
-  },
-]);
-
-// 获取grid的api
-let grid_api: GridApi | null = null;
-function grid_ready(event: GridReadyEvent) {
-  grid_api = event.api;
-}
-
-// 获取数据到table
-const problems_url = useUrlStore().problems_url;
+// 获取数据
 async function get_problems(offset: number) {
-  if (grid_api) grid_api.showLoadingOverlay();
   problems_url.searchParams.set("offset", offset.toString());
   const resp = await fetch(problems_url, { credentials: "include" });
   if (resp.status === 200) {
@@ -76,13 +37,12 @@ async function get_problems(offset: number) {
     // 然后它才能赋给row_data.value
     data.problems = data.problems.map((l: []) => {
       const d = {};
-      for (const [i, el] of column_defs.entries())
-        d[el.field as keyof typeof d] = l[i];
+      for (const [i, el] of column_keys.entries())
+        d[el as keyof typeof d] = l[i];
       return d;
     });
-    row_data.value = data.problems;
+    problems.value = data.problems;
   }
-  if (grid_api) grid_api.hideOverlay();
 }
 
 // 改变页数, 重新从服务器获取数据
@@ -91,13 +51,11 @@ watch(page, async (new_page: number) => {
 });
 
 // table行被点击进入problem详情页面
-function row_clicked(event: RowClickedEvent<problem_type>) {
-  const problem = event.data;
-  if (problem)
-    router.push({ name: "problem-detail", params: { id: problem.id } });
+function row_clicked(problem_id: number) {
+  router.push({ name: "problem-detail", params: { id: problem_id } });
 }
 
-// 初始获取offset0的数据
+// 初始化时, 获取第一页数据
 onMounted(async () => {
   get_problems(0);
 });
@@ -108,35 +66,32 @@ onMounted(async () => {
     <v-card>
       <v-card-text>
         <!-- problem列表 -->
-        <ag-grid-vue
-          style="height: 74vh; margin-bottom: 0; padding-bottom: 0"
-          align="center"
-          class="ag-theme-material"
-          :suppressCellFocus="true"
-          :columnDefs="column_defs"
-          :rowData="row_data"
-          :paginationPageSize="page_size"
-          @grid-ready="grid_ready"
-          @rowClicked="row_clicked"
-        />
+        <v-table>
+          <thead>
+            <tr>
+              <th v-for="name in column_names" :key="name" class="text-center">
+                {{ name }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="problem in problems"
+              :key="problem.id"
+              @click="row_clicked(problem.id)"
+            >
+              <td v-for="key in column_keys" :key="key" class="text-center">
+                {{ problem[key as keyof typeof problem] }}
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+
         <!-- 分页 -->
         <v-container style="padding: 0">
           <v-pagination v-model="page" :length="total_page" />
         </v-container>
       </v-card-text>
-
-      <!-- v-data-table将在3.1版本发布, 可能更名为v-table -->
-      <!-- <v-table
-          :headers="headers"
-          :items="items"
-          :server-items-length="total_count"
-        /> -->
     </v-card>
   </v-container>
 </template>
-
-<style>
-.ag-header-cell-label {
-  justify-content: center;
-}
-</style>
