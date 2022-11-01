@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed } from "vue";
+import { ref, onMounted, reactive } from "vue";
 import icon from "../../assets/USTCOJ.svg";
 import { useUrlStore } from "../../stores/url";
 
@@ -24,25 +24,16 @@ onMounted(async function () {
 });
 
 // 提示条
-type AlertType = "success" | "error" | "warning" | "info";
-type Alert = {
-  value: boolean;
-  type: AlertType;
-  text: string;
-  pop: (type: AlertType, text: string, timeout?: number) => void;
-};
-const alert: Alert = reactive({
-  value: false,
-  type: "success",
-  text: "",
-  // 用此函数显示一个指定color和text的提示条
-  pop: (type: AlertType, text: string, timeout: number = 1500) => {
-    alert.type = type;
-    alert.text = text;
-    alert.value = true;
-    if (timeout >= 0) setTimeout(() => (alert.value = false), timeout); // -1代表不自动消失
-  },
-});
+const alert_value = ref(false);
+type AlertTypeEnum = "success" | "error" | "warning" | "info";
+const alert_type = ref<AlertTypeEnum>("success");
+const alert_text = ref("");
+function alert(type: AlertTypeEnum, text: string, timeout: number = 1500) {
+  alert_type.value = type;
+  alert_text.value = text;
+  alert_value.value = true;
+  if (timeout >= 0) setTimeout(() => (alert_value.value = false), timeout); // -1代表不自动消失
+}
 
 // 登录/注册对话框
 const tab = ref(0);
@@ -68,13 +59,13 @@ async function login() {
   if (resp.status === 200) {
     // 登录成功
     login_dialog.value = false;
-    alert.pop("success", "Login success");
+    alert("success", "Login success");
     is_logged.value = true;
   } else {
     // 登录失败
     const errs: string[] = await resp.json();
-    if (errs) alert.pop("error", errs.join("\n"), -1);
-    else alert.pop("error", "Login failed");
+    if (errs) alert("error", errs.join("\n"), -1);
+    else alert("error", "Login failed");
   }
 }
 
@@ -86,9 +77,6 @@ const register_form = reactive({
 });
 // 点击复选框可以检查密码输入是否正确
 const check_password = ref(false);
-const show_password = computed((): string =>
-  check_password.value ? "" : "password"
-);
 const users_url = useUrlStore().users_url;
 async function register() {
   loading.value = true;
@@ -104,13 +92,13 @@ async function register() {
   if (resp.status === 201) {
     // 注册成功
     login_dialog.value = false;
-    alert.pop("success", "Registration success");
+    alert("success", "Registration success");
     is_logged.value = true;
   } else {
     // 注册失败
     const errs: string[] = await resp.json();
-    if (errs) alert.pop("error", errs.join("\n"), -1);
-    else alert.pop("error", "Registration failed");
+    if (errs) alert("error", errs.join("\n"), -1);
+    else alert("error", "Registration failed");
   }
 }
 </script>
@@ -118,11 +106,11 @@ async function register() {
 <template>
   <!-- 提示条 -->
   <v-alert
-    :type="alert.type"
-    v-model="alert.value"
-    @click="alert.value = false"
+    :type="alert_type"
+    v-model="alert_value"
+    @click="alert_value = false"
   >
-    {{ alert.text }}
+    {{ alert_text }}
   </v-alert>
 
   <v-app-bar app rounded elevation="2">
@@ -211,7 +199,7 @@ async function register() {
                 />
                 <v-text-field
                   v-model="register_form.password"
-                  :type="show_password"
+                  :type="check_password ? '' : 'password'"
                   label="Password"
                   @keydown.enter="register"
                 />
