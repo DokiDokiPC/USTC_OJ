@@ -24,17 +24,23 @@ onMounted(async function () {
 });
 
 // 提示条
-const snackbar = reactive({
-  show: false,
+type AlertType = "success" | "error" | "warning" | "info";
+type Alert = {
+  value: boolean;
+  type: AlertType;
+  text: string;
+  pop: (type: AlertType, text: string, timeout?: number) => void;
+};
+const alert: Alert = reactive({
+  value: false,
+  type: "success",
   text: "",
-  color: "",
-  timeout: 1500,
   // 用此函数显示一个指定color和text的提示条
-  pop: (color: string, text: string, timeout: number = 1500) => {
-    snackbar.color = color;
-    snackbar.text = text;
-    snackbar.timeout = timeout;
-    snackbar.show = true;
+  pop: (type: AlertType, text: string, timeout: number = 1500) => {
+    alert.type = type;
+    alert.text = text;
+    alert.value = true;
+    if (timeout >= 0) setTimeout(() => (alert.value = false), timeout); // -1代表不自动消失
   },
 });
 
@@ -62,13 +68,13 @@ async function login() {
   if (resp.status === 200) {
     // 登录成功
     login_dialog.value = false;
-    snackbar.pop("success", "Login success");
+    alert.pop("success", "Login success");
     is_logged.value = true;
   } else {
     // 登录失败
     const errs: string[] = await resp.json();
-    if (errs) snackbar.pop("error", errs.join("\n"), -1);
-    else snackbar.pop("error", "Login failed");
+    if (errs) alert.pop("error", errs.join("\n"), -1);
+    else alert.pop("error", "Login failed");
   }
 }
 
@@ -98,18 +104,27 @@ async function register() {
   if (resp.status === 201) {
     // 注册成功
     login_dialog.value = false;
-    snackbar.pop("success", "Registration success");
+    alert.pop("success", "Registration success");
     is_logged.value = true;
   } else {
     // 注册失败
     const errs: string[] = await resp.json();
-    if (errs) snackbar.pop("error", errs.join("\n"), -1);
-    else snackbar.pop("error", "Registration failed");
+    if (errs) alert.pop("error", errs.join("\n"), -1);
+    else alert.pop("error", "Registration failed");
   }
 }
 </script>
 
 <template>
+  <!-- 提示条 -->
+  <v-alert
+    :type="alert.type"
+    v-model="alert.value"
+    @click="alert.value = false"
+  >
+    {{ alert.text }}
+  </v-alert>
+
   <v-app-bar app rounded elevation="2">
     <!-- 导航栏 -->
     <v-col cols="4" class="d-flex align-center">
@@ -138,27 +153,6 @@ async function register() {
         Sign in
       </v-btn>
     </v-col>
-
-    <!-- 提示条 -->
-    <v-snackbar
-      v-model="snackbar.show"
-      location="top"
-      :timeout="snackbar.timeout"
-      :color="snackbar.color"
-      style="white-space: pre-line"
-    >
-      {{ snackbar.text }}
-
-      <!-- 提示条的关闭按钮 -->
-      <v-btn
-        v-show="snackbar.timeout === -1"
-        color="red"
-        style="float: right"
-        @click="snackbar.show = false"
-      >
-        Close
-      </v-btn>
-    </v-snackbar>
 
     <!-- 登录/注册对话框 -->
     <v-dialog
@@ -241,3 +235,15 @@ async function register() {
     </v-dialog>
   </v-app-bar>
 </template>
+
+<style scoped>
+.v-alert {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 10px;
+  min-width: 340px;
+  z-index: 10000; /* 显示在最上面 */
+  white-space: pre; /* 允许换行 */
+}
+</style>
