@@ -1,4 +1,6 @@
 import { defineStore } from "pinia";
+import router from "./router";
+import { ref } from "vue";
 
 export const useUrlStore = defineStore("url", () => {
   const backend_url = new URL("http://127.0.0.1:5000/");
@@ -14,5 +16,17 @@ export const useUrlStore = defineStore("url", () => {
     submissions_url,
     users_url,
     tokens_url,
+  };
+});
+
+export const useMainTabStore = defineStore("main_tab", () => {
+  const main_tab = ref(0);
+  function go_home() {
+    router.push({ name: "home" });
+    main_tab.value = 0;
+  }
+  return {
+    main_tab,
+    go_home,
   };
 });

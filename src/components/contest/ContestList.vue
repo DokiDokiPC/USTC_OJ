@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useUrlStore } from "../../stores/url";
+import { useUrlStore } from "../../store";
 
 const contests_url = useUrlStore().contests_url;
 onMounted(async () => {

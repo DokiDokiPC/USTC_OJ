@@ -1,52 +1,136 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useUrlStore } from "../../stores/url";
+import { ref, onMounted, watch, computed } from "vue";
+import { useUrlStore } from "../../store";
 
-const items = ref([]);
-/*const headers = reactive([
-  { text: "#", value: "id" },
-  { text: "User", value: "usernmae" },
-  { text: "Problem", value: "problem_id" },
-  { text: "Result", value: "result" },
-  { text: "Time", value: "time_cost" },
-  { text: "Memory", value: "memory_cost" },
-  { text: "Submission Time", value: "submission_time" },
-]);*/
+// 定义了submission类型, submissions用以存储获取的数据
+type SubmissionObj = {
+  id: number;
+  submission_time: string;
+  username: string;
+  problem_id: number;
+  compiler: string;
+  status: string;
+  time_cost: number;
+  memory_cost: number;
+};
+const column_names = [
+  "#",
+  "Submission Time",
+  "Username",
+  "Problem ID",
+  "Compiler",
+  "Status",
+  "Time Used",
+  "Memory Used",
+];
+const submissions = ref<SubmissionObj[]>();
 
+// 分页信息
+const total_count = ref(0);
+const page_size = ref(0);
+const total_page = computed((): number => {
+  if (page_size.value === 0) return 0;
+  else return Math.ceil(total_count.value / page_size.value);
+});
+const page = ref(1);
+
+// 获取数据
 const submissions_url = useUrlStore().submissions_url;
-onMounted(async () => {
-  submissions_url.searchParams.set("offset", "0");
-  const resp = await fetch(submissions_url);
-  const data = await resp.json();
-  items.value = data.submissions;
-  console.log(data);
+async function get_submissions(offset: number) {
+  submissions_url.searchParams.set("offset", offset.toString());
+  const resp = await fetch(submissions_url, { credentials: "include" });
+  if (resp.status === 200) {
+    const data = await resp.json();
+    page_size.value = data.page_size;
+    total_count.value = data.total_count;
+    for (const submission of data.submissions) {
+      submission.submission_time = new Date(
+        submission.submission_time
+      ).toLocaleString("zh-CN");
+      if (submission.compiler === "GPP") submission.compiler = "G++";
+    }
+    submissions.value = data.submissions;
+  }
+}
+
+// 监测页数改变, 重新从服务器获取数据
+watch(page, async (new_page: number) => {
+  await get_submissions((new_page - 1) * page_size.value);
 });
 
-/*function get_color(result: string): string {
-  switch (result) {
+// 不同status用不同颜色显示
+function status_color(status: string): {} {
+  switch (status) {
+    case "Waiting":
+      return { color: "grey" };
+    case "CompileError":
+    case "RuntimeError":
+    case "MemoryLimitExceeded":
+    case "TimeLimitExceeded":
+    case "WrongAnswer":
+      return { color: "red" };
     case "Accepted":
-      return "green";
-    case "Failed":
-      return "error";
-    case "Compile Error":
-      return "warning";
+      return { color: "green" };
+    default:
+      return {};
   }
-  return "grey";
-}*/
+}
+
+// 初始化时, 获取第一页数据
+onMounted(async () => {
+  await get_submissions(0);
+});
 </script>
 
 <template>
   <v-container fluid style="padding-left: 6vw; padding-right: 6vw">
     <v-card>
-      <v-card-title class="text-h4 text--primary"> Submissions </v-card-title>
-      <v-card-text>
-        <!-- <v-data-table :headers="headers" :items="items">
-          <template v-slot:item.result="{ item }">
-            <v-chip :color="get_color(item.result)" outlined>
-              {{ item.result }}
-            </v-chip>
-          </template>
-        </v-data-table> -->
+      <v-card-text v-if="submissions">
+        <!-- submission列表 -->
+        <v-table>
+          <thead>
+            <tr>
+              <th v-for="name in column_names" :key="name" class="text-center">
+                {{ name }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="submission in submissions" :key="submission.id">
+              <td class="text-center">{{ submission.id }}</td>
+              <td class="text-center">{{ submission.submission_time }}</td>
+              <td class="text-center">
+                <router-link
+                  :to="{
+                    name: 'user-detail',
+                    params: { username: submission.username },
+                  }"
+                  >{{ submission.username }}</router-link
+                >
+              </td>
+              <td class="text-center">
+                <router-link
+                  :to="{
+                    name: 'problem-detail',
+                    params: { id: submission.problem_id },
+                  }"
+                  >{{ submission.problem_id }}</router-link
+                >
+              </td>
+              <td class="text-center">{{ submission.compiler }}</td>
+              <td class="text-center" :style="status_color(submission.status)">
+                {{ submission.status }}
+              </td>
+              <td class="text-center">{{ submission.time_cost }}ms</td>
+              <td class="text-center">{{ submission.memory_cost }}KB</td>
+            </tr>
+          </tbody>
+        </v-table>
+
+        <!-- 分页 -->
+        <v-container style="padding: 0">
+          <v-pagination v-model="page" :length="total_page" />
+        </v-container>
       </v-card-text>
     </v-card>
   </v-container>

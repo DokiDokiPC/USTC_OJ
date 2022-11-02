@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from "vue";
 import icon from "../../assets/USTCOJ.svg";
-import { useUrlStore } from "../../stores/url";
+import { useUrlStore, useMainTabStore } from "../../store";
 
 const login_dialog = ref(false);
 const is_logged = ref(false);
+const main_tab_store = useMainTabStore();
 
 // 退出
 const tokens_url = useUrlStore().tokens_url;
@@ -116,7 +117,7 @@ async function register() {
   <v-app-bar app rounded elevation="2">
     <!-- 导航栏 -->
     <v-col cols="4" class="d-flex align-center">
-      <v-tabs>
+      <v-tabs v-model="main_tab_store.main_tab">
         <v-tab color="orange" :to="{ name: 'home' }">Home</v-tab>
         <v-tab color="orange" :to="{ name: 'problem' }">Problem</v-tab>
         <v-tab color="orange" :to="{ name: 'submission' }">Submission</v-tab>
@@ -128,8 +129,8 @@ async function register() {
     <!-- 图标 -->
     <v-img
       :src="icon"
-      @click="$router.push({ name: 'home' })"
       style="cursor: pointer"
+      @click="main_tab_store.go_home"
     />
 
     <!-- 登入登出按钮 -->

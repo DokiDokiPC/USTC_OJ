@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useUrlStore } from "../../stores/url";
+import { useUrlStore } from "../../store";
 
 const form_valid = ref(false);
 const form_data = ref(new FormData());

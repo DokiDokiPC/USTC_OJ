@@ -1,20 +1,26 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
-import { useUrlStore } from "../../stores/url";
+import { useUrlStore } from "../../store";
 import router from "../../router";
 
-// 定义了获取的problem类型, problems用以存储获取的数据
-type problem_type = {
+// 定义了problem类型, problems用以存储获取的数据
+type ProblemObj = {
   id: number;
   title: string;
   level: string;
   ac_num: number;
   submit_num: number;
 };
-const column_keys = ["id", "title", "level", "ac_num", "submit_num"]; // 对应problem_type
+const column_keys: (keyof ProblemObj)[] = [
+  "id",
+  "title",
+  "level",
+  "ac_num",
+  "submit_num",
+];
+type ProblemList = [number, string, string, number, number];
 const column_names = ["#", "Title", "Level", "AC", "Total"]; // 每个属性显示的名称
-const problems = ref<[problem_type]>();
-const problems_url = useUrlStore().problems_url; // 获取problems所用的url
+const problems = ref<ProblemObj[]>();
 
 // 分页信息
 const total_count = ref(0);
@@ -25,7 +31,24 @@ const total_page = computed((): number => {
 });
 const page = ref(1);
 
+// list数据转为字典
+function inner_list2dict(problems: ProblemList[]): ProblemObj[] {
+  const problems_res: ProblemObj[] = [];
+  for (const pl of problems) {
+    const po: ProblemObj = {
+      id: pl[0],
+      title: pl[1],
+      level: pl[2],
+      ac_num: pl[3],
+      submit_num: pl[4],
+    };
+    problems_res.push(po);
+  }
+  return problems_res;
+}
+
 // 获取数据
+const problems_url = useUrlStore().problems_url; // 获取problems所用的url
 async function get_problems(offset: number) {
   problems_url.searchParams.set("offset", offset.toString());
   const resp = await fetch(problems_url, { credentials: "include" });
@@ -33,19 +56,11 @@ async function get_problems(offset: number) {
     const data = await resp.json();
     page_size.value = data.page_size;
     total_count.value = data.total_count;
-    // data.problems内部的列表需要变为字典, 这可以通过的map函数完成,
-    // 然后它才能赋给row_data.value
-    data.problems = data.problems.map((l: []) => {
-      const d = {};
-      for (const [i, el] of column_keys.entries())
-        d[el as keyof typeof d] = l[i];
-      return d;
-    });
-    problems.value = data.problems;
+    problems.value = inner_list2dict(data.problems);
   }
 }
 
-// 改变页数, 重新从服务器获取数据
+// 监测页数改变, 重新从服务器获取数据
 watch(page, async (new_page: number) => {
   await get_problems((new_page - 1) * page_size.value);
 });
@@ -57,14 +72,14 @@ function row_clicked(problem_id: number) {
 
 // 初始化时, 获取第一页数据
 onMounted(async () => {
-  get_problems(0);
+  await get_problems(0);
 });
 </script>
 
 <template>
   <v-container>
     <v-card>
-      <v-card-text>
+      <v-card-text v-if="problems">
         <!-- problem列表 -->
         <v-table>
           <thead>
@@ -78,10 +93,10 @@ onMounted(async () => {
             <tr
               v-for="problem in problems"
               :key="problem.id"
-              @click="row_clicked(problem.id)"
+              @dblclick="row_clicked(problem.id)"
             >
               <td v-for="key in column_keys" :key="key" class="text-center">
-                {{ problem[key as keyof typeof problem] }}
+                {{ problem[key] }}
               </td>
             </tr>
           </tbody>
