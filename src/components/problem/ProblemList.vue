@@ -79,6 +79,7 @@ onMounted(async () => {
 <template>
   <v-container>
     <v-card>
+      <!-- 添加v-if="problems", 否则先显示headers, 等一会儿才显示数据, 破坏了整体性 -->
       <v-card-text v-if="problems">
         <!-- problem列表 -->
         <v-table>

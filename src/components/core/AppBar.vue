@@ -3,8 +3,6 @@ import { ref, onMounted, reactive } from "vue";
 import icon from "../../assets/USTCOJ.svg";
 import { useUrlStore, useMainTabStore } from "../../store";
 
-const login_dialog = ref(false);
-const is_logged = ref(false);
 const main_tab_store = useMainTabStore();
 
 // 退出
@@ -16,15 +14,18 @@ function logout() {
 }
 
 // 检测是否登录
+const username = ref<string | null>("");
 onMounted(async function () {
+  is_logged.value = true; // 先设置为true, 如果没登录再显示sign in
   const resp = await fetch(tokens_url, {
     method: "HEAD",
     credentials: "include",
   });
-  if (resp.status === 200) is_logged.value = true;
+  if (resp.status === 200) username.value = resp.headers.get("username");
+  else is_logged.value = false;
 });
 
-// 提示条
+// Alert提示
 const alert_value = ref(false);
 type AlertTypeEnum = "success" | "error" | "warning" | "info";
 const alert_type = ref<AlertTypeEnum>("success");
@@ -41,6 +42,8 @@ const tab = ref(0);
 const loading = ref(false);
 
 // 登录
+const is_logged = ref(false);
+const login_dialog = ref(false);
 const login_form = reactive({
   username: "",
   password: "",
@@ -60,6 +63,7 @@ async function login() {
   if (resp.status === 200) {
     // 登录成功
     login_dialog.value = false;
+    username.value = login_form.username;
     alert("success", "Login success");
     is_logged.value = true;
   } else {
@@ -76,6 +80,7 @@ const register_form = reactive({
   username: "",
   password: "",
 });
+
 // 点击复选框可以检查密码输入是否正确
 const check_password = ref(false);
 const users_url = useUrlStore().users_url;
@@ -126,21 +131,41 @@ async function register() {
       </v-tabs>
     </v-col>
 
-    <!-- 图标 -->
+    <!-- 网站图标 -->
     <v-img
       :src="icon"
       style="cursor: pointer"
       @click="main_tab_store.go_home"
     />
 
-    <!-- 登入登出按钮 -->
+    <!-- 头像, 名称, 下拉菜单 -->
     <v-col cols="4" class="d-flex justify-end align-center">
-      <v-btn text color="orange" v-if="is_logged" @click="logout">
-        Log out
-      </v-btn>
-      <v-btn text color="orange" v-else @click="login_dialog = true">
+      <v-btn text color="orange" v-if="!is_logged" @click="login_dialog = true">
         Sign in
       </v-btn>
+      <v-menu rounded offset-y v-else>
+        <template v-slot:activator="{ props }">
+          <v-btn
+            v-bind="props"
+            color="orange"
+            style="text-transform: none"
+            class="text-body-1"
+          >
+            {{ username }}
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item-group>
+            <v-list-item
+              @click="logout"
+              variant="plain"
+              style="cursor: pointer"
+            >
+              SIGN OUT
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+      </v-menu>
     </v-col>
 
     <!-- 登录/注册对话框 -->

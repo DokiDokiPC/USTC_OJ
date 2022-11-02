@@ -2,10 +2,9 @@
 import { ref, onMounted } from "vue";
 // import VueMarkdown from "vue-markdown";
 import { useRoute } from "vue-router";
-import { useUrlStore, useMainTabStore } from "../../store";
+import { useUrlStore } from "../../store";
 
 const problem_id = ref(0);
-const main_tab_store = useMainTabStore();
 
 const problems_url = useUrlStore().problems_url;
 async function get_problem_detail(id: number) {
@@ -22,7 +21,6 @@ onMounted(async () => {
     console.log(data, data.id);
     problem_id.value = parseInt(data.id);
   } else problem_id.value = 0;
-  main_tab_store.main_tab = -1;
 });
 </script>
 

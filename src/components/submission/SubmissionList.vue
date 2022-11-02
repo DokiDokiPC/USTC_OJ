@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
-import { useUrlStore } from "../../store";
+import { useUrlStore, useMainTabStore } from "../../store";
+
+// 点击username和problem的链接时, 先通过main_tab_store将导航栏的选择置空
+const main_tab_store = useMainTabStore();
 
 // 定义了submission类型, submissions用以存储获取的数据
 type SubmissionObj = {
@@ -61,8 +64,6 @@ watch(page, async (new_page: number) => {
 // 不同status用不同颜色显示
 function status_color(status: string): {} {
   switch (status) {
-    case "Waiting":
-      return { color: "grey" };
     case "CompileError":
     case "RuntimeError":
     case "MemoryLimitExceeded":
@@ -85,6 +86,7 @@ onMounted(async () => {
 <template>
   <v-container fluid style="padding-left: 6vw; padding-right: 6vw">
     <v-card>
+      <!-- 添加v-if="submissions", 否则先显示headers, 等一会儿才显示数据, 破坏了整体性 -->
       <v-card-text v-if="submissions">
         <!-- submission列表 -->
         <v-table>
@@ -105,8 +107,10 @@ onMounted(async () => {
                     name: 'user-detail',
                     params: { username: submission.username },
                   }"
-                  >{{ submission.username }}</router-link
+                  @click="main_tab_store.main_tab = -1"
                 >
+                  {{ submission.username }}
+                </router-link>
               </td>
               <td class="text-center">
                 <router-link
@@ -114,8 +118,10 @@ onMounted(async () => {
                     name: 'problem-detail',
                     params: { id: submission.problem_id },
                   }"
-                  >{{ submission.problem_id }}</router-link
+                  @click="main_tab_store.main_tab = -1"
                 >
+                  {{ submission.problem_id }}
+                </router-link>
               </td>
               <td class="text-center">{{ submission.compiler }}</td>
               <td class="text-center" :style="status_color(submission.status)">
