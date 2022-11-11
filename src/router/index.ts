@@ -33,9 +33,9 @@ const router = createRouter({
           component: () => import("../components/problem/ProblemDetail.vue"),
         },
         {
-          path: "/rank",
-          name: "rank",
-          component: () => import("../components/user/UserRank.vue"),
+          path: "/leaderboard",
+          name: "leaderboard",
+          component: () => import("../components/user/UserLeaderboard.vue"),
         },
         {
           path: "/user/:username",

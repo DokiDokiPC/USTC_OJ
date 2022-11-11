@@ -1,5 +1,5 @@
 <template>
   <v-container>
-    <p>User Rank</p>
+    <p>User Leaderboard</p>
   </v-container>
 </template>
