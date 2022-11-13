@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
-import { useUrlStore } from "../../store";
 import router from "../../router";
 
 // 定义了problem类型, problems用以存储获取的数据
@@ -31,7 +30,7 @@ const total_page = computed((): number => {
 const page = ref(1);
 
 // 获取数据
-const problems_url = useUrlStore().problems_url; // 获取problems所用的url
+const problems_url = new URL(import.meta.env.VITE_BACKEND_URL + "problems/"); // 获取problems所用的url
 async function get_problems(offset: number) {
   problems_url.searchParams.set("offset", offset.toString());
   const resp = await fetch(problems_url, { credentials: "include" });

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useUrlStore } from "../../store";
 
 const form_valid = ref(false);
 const form_data = ref(new FormData());
@@ -16,7 +15,7 @@ function on_template_file_selected(e: Event) {
   form_data.value.append("file_archive", e);
 }*/
 
-const problems_url = useUrlStore().problems_url;
+const problems_url = new URL(import.meta.env.VITE_BACKEND_URL + "problems");
 async function send_data() {
   const new_form_data = form_data.value;
   new_form_data.append("name", name.value);

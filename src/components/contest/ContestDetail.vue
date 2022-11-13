@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+/*import { ref, reactive } from "vue";
 const item = ref({});
 const selected_item = ref(0);
 const sidebar = reactive([
@@ -15,12 +15,12 @@ const sidebar = reactive([
     icon: ["mdi-clock-time-four-outline", "mdi-clock-time-four"],
     name: "Submissions",
   },
-]);
+]);*/
 </script>
 
 <template>
   <v-container fluid style="padding-left: 6vw; padding-right: 6vw">
-    <v-row justify="center">
+    <!-- <v-row justify="center">
       <v-col :cols="3">
         <v-card elevation="1">
           <v-list>
@@ -58,6 +58,6 @@ const sidebar = reactive([
           </v-card-text>
         </v-card>
       </v-col>
-    </v-row>
+    </v-row> -->
   </v-container>
 </template>

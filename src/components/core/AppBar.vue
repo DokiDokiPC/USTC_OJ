@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from "vue";
 import icon from "../../assets/USTCOJ.svg";
-import { useUrlStore, useMainTabStore } from "../../store";
+import { useMainTabStore } from "../../store";
 
 const main_tab_store = useMainTabStore();
 
 // 退出
-const tokens_url = useUrlStore().tokens_url;
+const tokens_url = new URL(import.meta.env.VITE_BACKEND_URL + "tokens/");
 function logout() {
   // 由于cookie是HttpOnly的, 所以只能访问后端删除
   fetch(tokens_url, { method: "DELETE", credentials: "include" });
@@ -83,7 +83,7 @@ const register_form = reactive({
 
 // 点击复选框可以检查密码输入是否正确
 const check_password = ref(false);
-const users_url = useUrlStore().users_url;
+const users_url = new URL(import.meta.env.VITE_BACKEND_URL + "users/");
 async function register() {
   loading.value = true;
   const resp = await fetch(users_url, {
@@ -138,7 +138,7 @@ async function register() {
       @click="main_tab_store.go_home"
     />
 
-    <!-- 头像, 名称, 下拉菜单 -->
+    <!-- 名称, 下拉菜单 -->
     <v-col cols="4" class="d-flex justify-end align-center">
       <v-btn text color="orange" v-if="!is_logged" @click="login_dialog = true">
         Sign in
@@ -155,7 +155,8 @@ async function register() {
           </v-btn>
         </template>
         <v-list>
-          <v-list-item-group>
+          <!-- 这个div是必要的, 否则下拉菜单打开时会闪烁一下 -->
+          <div>
             <v-list-item
               @click="logout"
               variant="plain"
@@ -163,7 +164,7 @@ async function register() {
             >
               SIGN OUT
             </v-list-item>
-          </v-list-item-group>
+          </div>
         </v-list>
       </v-menu>
     </v-col>

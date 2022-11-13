@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useUrlStore } from "../../store";
 
 const form_valid = ref(false);
 const name = ref("");
 const duration = ref("");
 const start_time = ref("");
 
-const contests_url = useUrlStore().contests_url;
+const contests_url = new URL(import.meta.env.VITE_BACKEND_URL + "contests/");
 async function send_data() {
   const resp = await fetch(contests_url);
   console.log(resp);

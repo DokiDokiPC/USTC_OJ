@@ -2,11 +2,10 @@
 import { ref, onMounted } from "vue";
 // import VueMarkdown from "vue-markdown";
 import { useRoute } from "vue-router";
-import { useUrlStore } from "../../store";
 
 const problem_id = ref(0);
 
-const problems_url = useUrlStore().problems_url;
+const problems_url = new URL(import.meta.env.VITE_BACKEND_URL + "problems/");
 async function get_problem_detail(id: number) {
   const problem_id_url = new URL(id.toString(), problems_url);
   const resp = await fetch(problem_id_url);

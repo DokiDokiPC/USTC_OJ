@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
-import { useUrlStore, useMainTabStore } from "../../store";
+import { useMainTabStore } from "../../store";
 
 // 点击username和problem的链接时, 先通过main_tab_store将导航栏的选择置空
 const main_tab_store = useMainTabStore();
@@ -38,7 +38,9 @@ const total_page = computed((): number => {
 const page = ref(1);
 
 // 获取数据
-const submissions_url = useUrlStore().submissions_url;
+const submissions_url = new URL(
+  import.meta.env.VITE_BACKEND_URL + "submissions/"
+);
 async function get_submissions(offset: number) {
   submissions_url.searchParams.set("offset", offset.toString());
   const resp = await fetch(submissions_url, { credentials: "include" });

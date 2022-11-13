@@ -1,8 +1,7 @@
 <script setup lang="ts">
 /*import { onMounted } from "vue";
-import { useUrlStore } from "../../store";
 
-const contests_url = useUrlStore().contests_url;
+const contests_url = new URL(import.meta.env.VITE_BACKEND_URL + "contests/");
 onMounted(async () => {
   contests_url.searchParams.set("offset", "0");
   const resp = await fetch(contests_url);
