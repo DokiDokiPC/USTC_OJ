@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+/*import { onMounted } from "vue";
 import { useUrlStore } from "../../store";
 
 const contests_url = useUrlStore().contests_url;
@@ -10,7 +10,7 @@ onMounted(async () => {
   console.log(data);
 });
 
-/*const items = ref([]);
+const items = ref([]);
 const page_size = ref(0);
 const headers = reactive([
   {
