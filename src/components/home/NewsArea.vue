@@ -1,13 +1,7 @@
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref } from "vue";
 const model = ref(0);
-const colors = reactive([
-  "primary",
-  "secondary",
-  "yellow darken-2",
-  "red",
-  "orange",
-]);
+const colors = ["primary", "secondary", "yellow darken-2", "red", "orange"];
 </script>
 
 <template>

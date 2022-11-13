@@ -3,7 +3,7 @@ import { ref, onMounted, computed, watch } from "vue";
 import router from "../../router";
 
 // 定义了problem类型, problems用以存储获取的数据
-type ProblemObj = {
+type ProblemBrief = {
   id: number;
   name: string;
   level: string;
@@ -11,12 +11,12 @@ type ProblemObj = {
   submit_num: number;
   ac_rate: string; // 通过ac_num和submit_num计算, 后面要加%号
 };
-type data_type = {
+type DataBrief = {
   page_size: number;
   total_count: number;
-  problems: ProblemObj[];
+  problems: ProblemBrief[];
 };
-const column_keys: (keyof ProblemObj)[] = [
+const column_keys: (keyof ProblemBrief)[] = [
   "id",
   "name",
   "level",
@@ -25,7 +25,7 @@ const column_keys: (keyof ProblemObj)[] = [
   "ac_rate",
 ];
 const column_names = ["#", "Title", "Level", "AC", "Total", "AC Rate"]; // 每个属性显示的名称
-const problems = ref<ProblemObj[]>();
+const problems = ref<ProblemBrief[]>();
 
 // 分页信息
 const total_count = ref(0);
@@ -37,12 +37,12 @@ const total_page = computed((): number => {
 const page = ref(1);
 
 // 获取数据
-const problems_url = new URL(import.meta.env.VITE_BACKEND_URL + "problems/"); // 获取problems所用的url
+const problems_url = new URL(import.meta.env.VITE_BACKEND_URL + "problems/");
 async function get_problems(offset: number) {
   problems_url.searchParams.set("offset", offset.toString());
   const resp = await fetch(problems_url, { credentials: "include" });
   if (resp.status === 200) {
-    const data: data_type = await resp.json();
+    const data: DataBrief = await resp.json();
     page_size.value = data.page_size;
     total_count.value = data.total_count;
     for (const problem of data.problems) {

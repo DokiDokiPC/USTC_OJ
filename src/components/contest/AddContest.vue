@@ -6,7 +6,7 @@ const name = ref("");
 const duration = ref("");
 const start_time = ref("");
 
-const contests_url = new URL(import.meta.env.VITE_BACKEND_URL + "contests/");
+const contests_url = import.meta.env.VITE_BACKEND_URL + "contests/";
 async function send_data() {
   const resp = await fetch(contests_url);
   console.log(resp);

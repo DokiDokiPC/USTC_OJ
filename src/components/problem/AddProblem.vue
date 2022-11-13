@@ -15,7 +15,7 @@ function on_template_file_selected(e: Event) {
   form_data.value.append("file_archive", e);
 }*/
 
-const problems_url = new URL(import.meta.env.VITE_BACKEND_URL + "problems");
+const problems_url = import.meta.env.VITE_BACKEND_URL + "problems";
 async function send_data() {
   const new_form_data = form_data.value;
   new_form_data.append("name", name.value);

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /*import { onMounted } from "vue";
 
-const contests_url = new URL(import.meta.env.VITE_BACKEND_URL + "contests/");
+const contests_url = import.meta.env.VITE_BACKEND_URL + "contests/";
 onMounted(async () => {
   contests_url.searchParams.set("offset", "0");
   const resp = await fetch(contests_url);

@@ -6,7 +6,7 @@ import { useMainTabStore } from "../../store";
 const main_tab_store = useMainTabStore();
 
 // 退出
-const tokens_url = new URL(import.meta.env.VITE_BACKEND_URL + "tokens/");
+const tokens_url = import.meta.env.VITE_BACKEND_URL + "tokens/";
 function logout() {
   // 由于cookie是HttpOnly的, 所以只能访问后端删除
   fetch(tokens_url, { method: "DELETE", credentials: "include" });
@@ -83,7 +83,7 @@ const register_form = reactive({
 
 // 点击复选框可以检查密码输入是否正确
 const check_password = ref(false);
-const users_url = new URL(import.meta.env.VITE_BACKEND_URL + "users/");
+const users_url = import.meta.env.VITE_BACKEND_URL + "users/";
 async function register() {
   loading.value = true;
   const resp = await fetch(users_url, {
