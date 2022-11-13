@@ -71,9 +71,9 @@ function status_color(status: string): {} {
     case "MemoryLimitExceeded":
     case "TimeLimitExceeded":
     case "WrongAnswer":
-      return { color: "red" };
+      return { color: "Red" };
     case "Accepted":
-      return { color: "green" };
+      return { color: "LimeGreen" };
     default:
       return {};
   }

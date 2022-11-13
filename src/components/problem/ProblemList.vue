@@ -9,6 +9,12 @@ type ProblemObj = {
   level: string;
   ac_num: number;
   submit_num: number;
+  ac_rate: string; // 通过ac_num和submit_num计算, 后面要加%号
+};
+type data_type = {
+  page_size: number;
+  total_count: number;
+  problems: ProblemObj[];
 };
 const column_keys: (keyof ProblemObj)[] = [
   "id",
@@ -16,8 +22,9 @@ const column_keys: (keyof ProblemObj)[] = [
   "level",
   "ac_num",
   "submit_num",
+  "ac_rate",
 ];
-const column_names = ["#", "Title", "Level", "AC", "Total"]; // 每个属性显示的名称
+const column_names = ["#", "Title", "Level", "AC", "Total", "AC Rate"]; // 每个属性显示的名称
 const problems = ref<ProblemObj[]>();
 
 // 分页信息
@@ -35,9 +42,17 @@ async function get_problems(offset: number) {
   problems_url.searchParams.set("offset", offset.toString());
   const resp = await fetch(problems_url, { credentials: "include" });
   if (resp.status === 200) {
-    const data = await resp.json();
+    const data: data_type = await resp.json();
     page_size.value = data.page_size;
     total_count.value = data.total_count;
+    for (const problem of data.problems) {
+      if (problem.submit_num === 0) problem.ac_rate = "-";
+      else
+        problem.ac_rate =
+          (
+            Math.round((10000 * problem.ac_num) / problem.submit_num) / 100
+          ).toString() + "%";
+    }
     problems.value = data.problems;
   }
 }
@@ -56,6 +71,20 @@ function row_clicked(problem_id: number) {
 onMounted(async () => {
   await get_problems(0);
 });
+
+// 不同的难度用不同的颜色显示
+function level_color(level: string): {} {
+  switch (level) {
+    case "Easy":
+      return { color: "SeaGreen" };
+    case "Middle":
+      return { color: "Orange" };
+    case "Hard":
+      return { color: "OrangeRed" };
+    default:
+      return {};
+  }
+}
 </script>
 
 <template>
@@ -78,7 +107,12 @@ onMounted(async () => {
               :key="problem.id"
               @dblclick="row_clicked(problem.id)"
             >
-              <td v-for="key in column_keys" :key="key" class="text-center">
+              <td
+                v-for="key in column_keys"
+                :key="key"
+                class="text-center"
+                :style="key == 'level' ? level_color(problem[key]) : {}"
+              >
                 {{ problem[key] }}
               </td>
             </tr>
