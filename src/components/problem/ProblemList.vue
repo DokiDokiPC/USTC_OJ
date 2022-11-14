@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
 import router from "../../router";
+import { useMainTabStore } from "../../store";
 
 // 定义了problem类型, problems用以存储获取的数据
 type ProblemBrief = {
@@ -63,7 +64,9 @@ watch(page, async (new_page: number) => {
 });
 
 // table行被点击进入problem详情页面
+const main_tab_store = useMainTabStore();
 function row_clicked(problem_id: number) {
+  main_tab_store.main_tab = -1;
   router.push({ name: "problem-detail", params: { id: problem_id } });
 }
 

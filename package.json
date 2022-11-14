@@ -12,11 +12,8 @@
   },
   "dependencies": {
     "@mdi/font": "7.0.96",
-    "babel-runtime": "^6.26.0",
     "pinia": "^2.0.23",
-    "roboto-fontface": "*",
     "vue": "^3.2.45",
-    "vue-markdown": "^2.2.4",
     "vue-router": "^4.1.6",
     "vuetify": "3.0.1",
     "webfontloader": "^1.6.28",
@@ -25,7 +22,6 @@
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.2.0",
     "@types/node": "^18.11.9",
-    "@types/vue-markdown": "^2.2.1",
     "@types/webfontloader": "^1.6.35",
     "@vitejs/plugin-vue": "^3.2.0",
     "@vue/eslint-config-prettier": "^7.0.0",
