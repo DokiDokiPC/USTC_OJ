@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import router from "@/router";
 import { ref, reactive, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { useAlertStore, useUsernameStore } from "../../store";
 
 type ProblemDetail = {
   id: number;
@@ -28,6 +30,7 @@ onMounted(async () => {
   await get_problem_detail(parseInt(route.params.id as string));
 });
 
+// *********************提交********************* //
 const compiler_name = ref("GCC");
 const compilers_map = new Map([
   ["GCC", "GCC"],
@@ -39,11 +42,39 @@ const submit_form = reactive({
   source_code: "",
 });
 
-function submit() {
+const submissions_url = import.meta.env.VITE_BACKEND_URL + "submissions/";
+const alert_store = useAlertStore();
+const username_store = useUsernameStore();
+async function submit() {
   const temp = compilers_map.get(compiler_name.value);
-  if (temp) submit_form.compiler = temp;
-  console.log(submit_form);
+  if (temp != null) submit_form.compiler = temp;
+
+  // 向后端提交
+  const resp = await fetch(submissions_url, {
+    method: "POST",
+    credentials: "include",
+    body: JSON.stringify(submit_form),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  // 提交成功, 跳转到submission列表, 并且用username作为query
+  if (resp.status === 200) {
+    alert_store.alert("success", "Submit success");
+    setTimeout(() => {
+      router.push({
+        name: "submission",
+        query: { username: username_store.username },
+      });
+    }, 1500);
+  } else {
+    // 提交失败, alert错误提示
+    const errs: string[] = await resp.json();
+    alert_store.alert("error", errs.join("\n"), -1);
+  }
 }
+// *********************提交********************* //
 </script>
 
 <template>
@@ -56,24 +87,29 @@ function submit() {
         <div>Memory Limit: {{ problem.memory_limit }}KB</div>
         <div>{{ problem.description }}</div>
         <br />
-        <v-select
-          label="Compiler"
-          v-model="compiler_name"
-          :items="[...compilers_map.keys()]"
-          density="comfortable"
-        />
-        <v-textarea
-          v-model="submit_form.source_code"
-          label="Paste your code here"
-          auto-grow
-          variant="outlined"
-          rows="3"
-          row-height="25"
-          shaped
-        ></v-textarea>
-        <v-btn @click="submit" variant="outlined" style="color: SeaGreen">
-          Submit
-        </v-btn>
+
+        <!-- submit部分 -->
+        <div v-if="username_store.username != null">
+          <v-select
+            label="Compiler"
+            v-model="compiler_name"
+            :items="[...compilers_map.keys()]"
+            density="comfortable"
+          />
+          <v-textarea
+            v-model="submit_form.source_code"
+            label="Paste your code here"
+            auto-grow
+            variant="outlined"
+            rows="3"
+            row-height="25"
+            shaped
+          ></v-textarea>
+          <v-btn @click="submit" variant="outlined" style="color: SeaGreen">
+            Submit
+          </v-btn>
+        </div>
+        <div v-else>Sign in to submit your solution!</div>
       </v-card-text>
     </v-card>
   </v-container>

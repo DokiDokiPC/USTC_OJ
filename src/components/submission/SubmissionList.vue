@@ -41,18 +41,41 @@ const page = ref(1);
 const submissions_url = new URL(
   import.meta.env.VITE_BACKEND_URL + "submissions/"
 );
+
+const compilers_map = new Map([["GPP", "G++"]]);
+
 async function get_submissions(offset: number) {
   submissions_url.searchParams.set("offset", offset.toString());
+  // 检查url中有无username的query, 如果有, 也要传到后端
+  const url_queries = new URLSearchParams(window.location.search);
+  const username = url_queries.get("username");
+  if (username != null) submissions_url.searchParams.set("username", username);
+
   const resp = await fetch(submissions_url, { credentials: "include" });
+
   if (resp.status === 200) {
     const data = await resp.json();
+
     page_size.value = data.page_size;
     total_count.value = data.total_count;
+
     for (const submission of data.submissions) {
+      // 将时间更改为当地时间
       submission.submission_time = new Date(
         submission.submission_time
-      ).toLocaleString("zh-CN");
-      if (submission.compiler === "GPP") submission.compiler = "G++";
+      ).toLocaleString();
+
+      // 将编译器名称更改为要显示的名称
+      const temp = compilers_map.get(submission.compiler);
+      if (temp != null) submission.compiler = temp;
+
+      // 给time_cost, memory_cost加上单位, 如果为-1, 改成-
+      if (submission.time_cost >= 0)
+        submission.time_cost = submission.time_cost.toString() + "ms";
+      else submission.time_cost = "-";
+      if (submission.memory_cost >= 0)
+        submission.memory_cost = submission.memory_cost.toString() + "KB";
+      else submission.memory_cost = "-";
     }
     submissions.value = data.submissions;
   }
@@ -129,8 +152,8 @@ onMounted(async () => {
               <td class="text-center" :style="status_color(submission.status)">
                 {{ submission.status }}
               </td>
-              <td class="text-center">{{ submission.time_cost }}ms</td>
-              <td class="text-center">{{ submission.memory_cost }}KB</td>
+              <td class="text-center">{{ submission.time_cost }}</td>
+              <td class="text-center">{{ submission.memory_cost }}</td>
             </tr>
           </tbody>
         </v-table>

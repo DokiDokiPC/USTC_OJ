@@ -65,7 +65,7 @@ watch(page, async (new_page: number) => {
 
 // table行被点击进入problem详情页面
 const main_tab_store = useMainTabStore();
-function row_clicked(problem_id: number) {
+function row_dbclicked(problem_id: number) {
   main_tab_store.main_tab = -1;
   router.push({ name: "problem-detail", params: { id: problem_id } });
 }
@@ -108,7 +108,7 @@ function level_color(level: string): {} {
             <tr
               v-for="problem in problems"
               :key="problem.id"
-              @dblclick="row_clicked(problem.id)"
+              @dblclick="row_dbclicked(problem.id)"
             >
               <td
                 v-for="key in column_keys"

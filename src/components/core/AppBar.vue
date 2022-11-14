@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from "vue";
 import icon from "../../assets/USTCOJ.svg";
-import { useMainTabStore } from "../../store";
+import { useMainTabStore, useAlertStore, useUsernameStore } from "../../store";
 
 const main_tab_store = useMainTabStore();
 
@@ -10,39 +10,30 @@ const tokens_url = import.meta.env.VITE_BACKEND_URL + "tokens/";
 function logout() {
   // 由于cookie是HttpOnly的, 所以只能访问后端删除
   fetch(tokens_url, { method: "DELETE", credentials: "include" });
-  is_logged.value = false;
+  username_store.username = null;
 }
 
 // 检测是否登录
-const username = ref<string | null>("");
+const username_store = useUsernameStore();
 onMounted(async function () {
-  is_logged.value = true; // 先设置为true, 如果没登录再显示sign in
+  username_store.username = ""; // 先设置为非null, 如果没登录再显示sign in
   const resp = await fetch(tokens_url, {
     method: "HEAD",
     credentials: "include",
   });
-  if (resp.status === 200) username.value = resp.headers.get("username");
-  else is_logged.value = false;
+  if (resp.status === 200)
+    username_store.username = resp.headers.get("username");
+  else username_store.username = null;
 });
 
 // Alert提示
-const alert_value = ref(false);
-type AlertTypeEnum = "success" | "error" | "warning" | "info";
-const alert_type = ref<AlertTypeEnum>("success");
-const alert_text = ref("");
-function alert(type: AlertTypeEnum, text: string, timeout: number = 1500) {
-  alert_type.value = type;
-  alert_text.value = text;
-  alert_value.value = true;
-  if (timeout >= 0) setTimeout(() => (alert_value.value = false), timeout); // -1代表不自动消失
-}
+const alert_store = useAlertStore();
 
 // 登录/注册对话框
 const tab = ref(0);
 const loading = ref(false);
 
 // 登录
-const is_logged = ref(false);
 const login_dialog = ref(false);
 const login_form = reactive({
   username: "",
@@ -63,14 +54,13 @@ async function login() {
   if (resp.status === 200) {
     // 登录成功
     login_dialog.value = false;
-    username.value = login_form.username;
-    alert("success", "Login success");
-    is_logged.value = true;
+    username_store.username = login_form.username;
+    alert_store.alert("success", "Login success");
   } else {
     // 登录失败
     const errs: string[] = await resp.json();
-    if (errs) alert("error", errs.join("\n"), -1);
-    else alert("error", "Login failed");
+    if (errs) alert_store.alert("error", errs.join("\n"), -1);
+    else alert_store.alert("error", "Login failed");
   }
 }
 
@@ -98,13 +88,13 @@ async function register() {
   if (resp.status === 201) {
     // 注册成功
     login_dialog.value = false;
-    alert("success", "Registration success");
-    is_logged.value = true;
+    alert_store.alert("success", "Registration success");
+    username_store.username = register_form.username;
   } else {
     // 注册失败
     const errs: string[] = await resp.json();
-    if (errs) alert("error", errs.join("\n"), -1);
-    else alert("error", "Registration failed");
+    if (errs) alert_store.alert("error", errs.join("\n"), -1);
+    else alert_store.alert("error", "Registration failed");
   }
 }
 </script>
@@ -112,11 +102,11 @@ async function register() {
 <template>
   <!-- 提示条 -->
   <v-alert
-    :type="alert_type"
-    v-model="alert_value"
-    @click="alert_value = false"
+    :type="alert_store.alert_type"
+    v-model="alert_store.alert_value"
+    @click="alert_store.alert_value = false"
   >
-    {{ alert_text }}
+    {{ alert_store.alert_text }}
   </v-alert>
 
   <v-app-bar app rounded elevation="2">
@@ -140,7 +130,12 @@ async function register() {
 
     <!-- 名称, 下拉菜单 -->
     <v-col cols="4" class="d-flex justify-end align-center">
-      <v-btn text color="orange" v-if="!is_logged" @click="login_dialog = true">
+      <v-btn
+        text
+        color="orange"
+        v-if="username_store.username == null"
+        @click="login_dialog = true"
+      >
         Sign in
       </v-btn>
       <v-menu rounded offset-y v-else>
@@ -151,7 +146,7 @@ async function register() {
             style="text-transform: none"
             class="text-body-1"
           >
-            {{ username }}
+            {{ username_store.username }}
           </v-btn>
         </template>
         <v-list>
