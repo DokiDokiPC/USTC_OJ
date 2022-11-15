@@ -21,7 +21,7 @@ const problems_url = import.meta.env.VITE_BACKEND_URL + "problems/";
 async function get_problem_detail(id: number) {
   const problem_id_url = problems_url + id.toString();
   const resp = await fetch(problem_id_url);
-  [problem.value] = await resp.json();
+  problem.value = await resp.json();
   if (problem.value) submit_form.problem_id = problem.value.id;
 }
 

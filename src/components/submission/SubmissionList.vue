@@ -29,11 +29,11 @@ const column_names = [
 const submissions = ref<SubmissionObj[]>();
 
 // 分页信息
-const total_count = ref(0);
+const total = ref(0);
 const page_size = ref(0);
 const total_page = computed((): number => {
   if (page_size.value === 0) return 0;
-  else return Math.ceil(total_count.value / page_size.value);
+  else return Math.ceil(total.value / page_size.value);
 });
 const page = ref(1);
 
@@ -57,7 +57,7 @@ async function get_submissions(offset: number) {
     const data = await resp.json();
 
     page_size.value = data.page_size;
-    total_count.value = data.total_count;
+    total.value = data.total;
 
     for (const submission of data.submissions) {
       // 将时间更改为当地时间

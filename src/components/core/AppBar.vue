@@ -116,7 +116,7 @@ async function register() {
         <v-tab color="orange" :to="{ name: 'home' }">Home</v-tab>
         <v-tab color="orange" :to="{ name: 'problem' }">Problem</v-tab>
         <v-tab color="orange" :to="{ name: 'submission' }">Submission</v-tab>
-        <v-tab color="orange" :to="{ name: 'contest' }">Contest</v-tab>
+        <!-- <v-tab color="orange" :to="{ name: 'contest' }">Contest</v-tab> -->
         <v-tab color="orange" :to="{ name: 'leaderboard' }">Leaderboard</v-tab>
       </v-tabs>
     </v-col>

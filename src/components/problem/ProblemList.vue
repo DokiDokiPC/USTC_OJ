@@ -14,7 +14,7 @@ type ProblemBrief = {
 };
 type DataBrief = {
   page_size: number;
-  total_count: number;
+  total: number;
   problems: ProblemBrief[];
 };
 const column_keys: (keyof ProblemBrief)[] = [
@@ -29,11 +29,11 @@ const column_names = ["#", "Title", "Level", "AC", "Total", "AC Rate"]; // 每�
 const problems = ref<ProblemBrief[]>();
 
 // 分页信息
-const total_count = ref(0);
+const total = ref(0);
 const page_size = ref(0);
 const total_page = computed((): number => {
   if (page_size.value === 0) return 0;
-  else return Math.ceil(total_count.value / page_size.value);
+  else return Math.ceil(total.value / page_size.value);
 });
 const page = ref(1);
 
@@ -45,7 +45,7 @@ async function get_problems(offset: number) {
   if (resp.status === 200) {
     const data: DataBrief = await resp.json();
     page_size.value = data.page_size;
-    total_count.value = data.total_count;
+    total.value = data.total;
     for (const problem of data.problems) {
       if (problem.submit_num === 0) problem.ac_rate = "-";
       else
